@@ -136,7 +136,7 @@ bool setXferMode(int mode) {
     Serial.println("xfer: SPI, 10 MHz, buffer, TMGRST=0...");
   } else if (mode == 2) {
     tlc.beginFast(false);
-    Serial.println("xfer: SPI, 10 Mhz, 16 bits at a time...");
+    Serial.println("xfer: SPI, 10 MHz, 16 bits at a time...");
   } else if (mode == 3) {
     tlc.beginFast(true, 2000000, 6);
     Serial.println("xfer: SPI, 2 MHz, buffer...");
