@@ -13,7 +13,7 @@
 #include <Tlc59711.h>
 
 const int NUM_TLC = 2;
-const int NUM_MODES = 6;   // data transfer modes to test
+const int NUM_MODES = 6;   // should match setXferMode()
 
 Tlc59711 tlc(NUM_TLC);
 
