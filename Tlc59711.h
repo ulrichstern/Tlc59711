@@ -33,7 +33,7 @@ public:
   //  - default: 10 MHz SPI clock (TLC59711 datasheet value)
   // * beginSlow():
   //  - use software (shiftOut(), which is digitalWrite()-based)
-  // * if this library is NOT used on an Arduino Uno or 10 MHz,
+  // * if this library is NOT used on an Arduino Uno or with 10 MHz,
   //  postXferDelayMicros possibly needs to be adjusted; see write()
   //  implementation and the library's GitHub Wiki for details
   void beginFast(bool bufferXfer = true, uint32_t spiClock = 10000000,
