@@ -3,6 +3,8 @@
 //
 // 21 Feb 2016 by Ulrich Stern
 //
+// open source (see LICENSE file)
+//
 // notes:
 // * rewrite of the Adafruit_TLC59711 library:
 //  - avoids deprecated SPI library calls (making it, e.g., Teensy compatible)
@@ -28,11 +30,12 @@ public:
   // select data transfer mode
   // * beginFast():
   //  - use hardware support (SPI library)
-  //  - use 10 MHz (TLC59711 datasheet value)
+  //  - default: 10 MHz SPI clock (TLC59711 datasheet value)
   // * beginSlow():
   //  - use software (shiftOut(), which is digitalWrite()-based)
-  // * if NOT used on an Arduino Uno or 10 MHz, postXferDelayMicros possibly
-  //  needs to be adjusted; see write() implementation and GitHub for details
+  // * if this library is NOT used on an Arduino Uno or 10 MHz,
+  //  postXferDelayMicros possibly needs to be adjusted; see write()
+  //  implementation and the library's GitHub Wiki for details
   void beginFast(bool bufferXfer = true, uint32_t spiClock = 10000000,
     unsigned int postXferDelayMicros = 4);
   void beginSlow(unsigned int postXferDelayMicros = 200,
@@ -53,7 +56,7 @@ public:
   // * brightness values (bcr, bcg, bcb) must be 0-127
   void setChannel(uint16_t idx, uint16_t val);
   void setRGB(uint16_t idx, uint16_t r, uint16_t g, uint16_t b);
-  void setRGB(uint16_t r, uint16_t g, uint16_t b);
+  void setRGB(uint16_t r = 0, uint16_t g = 0, uint16_t b = 0);
   void setLED(uint16_t idx, uint16_t r, uint16_t g, uint16_t b) {
     setRGB(idx, r, g, b);
   }
@@ -61,11 +64,10 @@ public:
     // code using Adafruit_TLC59711; the index order for multiple chips is
     // different here, however, and chip 1 has the smallest indices
   void setBrightness(uint16_t tlcIdx, uint8_t bcr, uint8_t bcg, uint8_t bcb);
-  void setBrightness(uint8_t bcr, uint8_t bcg, uint8_t bcb);
-  void resetBrightness() { setBrightness(127, 127, 127); }
+  void setBrightness(uint8_t bcr = 127, uint8_t bcg = 127, uint8_t bcb = 127);
   void reset() {
-    setRGB(0, 0, 0);
-    resetBrightness();
+    setRGB();
+    setBrightness();
   }
 
   // transfer data to TLC59711; will work only after a call to beginFast() or

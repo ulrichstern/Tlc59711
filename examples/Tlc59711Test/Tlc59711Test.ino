@@ -3,6 +3,8 @@
 //
 // 22 Feb 2016 by Ulrich Stern
 //
+// open source (see LICENSE file)
+//
 // notes:
 // * for "flicker" tests, values written at ~30 Hz to make possible flickering
 //  visible

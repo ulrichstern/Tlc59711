@@ -3,6 +3,8 @@
 //
 // 21 Feb 2016 by Ulrich Stern
 //
+// open source (see LICENSE file)
+//
 
 #include "Tlc59711.h"
 #include <SPI.h>
@@ -40,7 +42,7 @@ void Tlc59711::beginSlow(unsigned int postXferDelayMicros, bool interrupts) {
 void Tlc59711::setTmgrst(bool val) {
   // OUTTMG = 1, EXTGCK = 0, TMGRST = 0, DSPRPT = 1, BLANK = 0 -> 0x12
   fc = 0x12 + (val ? 0x4 : 0);
-  resetBrightness();
+  setBrightness();
 }
 
 void Tlc59711::setBrightness(uint16_t tlcIdx,
@@ -89,14 +91,14 @@ void Tlc59711::xferSpi() {
 
 void Tlc59711::xferSpi16() {
   cli();
-  for (int i=bufferSz-1; i >= 0; i--)
+  for (uint16_t i=bufferSz-1; i >= 0; i--)
     SPI.transfer16(buffer[i]);
 }
 
 void Tlc59711::xferShiftOut() {
   if (noInterrupts)
     cli();
-  for (int i=bufferSz-1; i >= 0; i--) {
+  for (uint16_t i=bufferSz-1; i >= 0; i--) {
     uint16_t val = buffer[i];
     shiftOut(dataPin, clkPin, MSBFIRST, val >> 8);
     shiftOut(dataPin, clkPin, MSBFIRST, val);
