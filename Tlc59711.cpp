@@ -91,14 +91,14 @@ void Tlc59711::xferSpi() {
 
 void Tlc59711::xferSpi16() {
   cli();
-  for (uint16_t i=bufferSz-1; i >= 0; i--)
+  for (int i=bufferSz-1; i >= 0; i--)
     SPI.transfer16(buffer[i]);
 }
 
 void Tlc59711::xferShiftOut() {
   if (noInterrupts)
     cli();
-  for (uint16_t i=bufferSz-1; i >= 0; i--) {
+  for (int i=bufferSz-1; i >= 0; i--) {
     uint16_t val = buffer[i];
     shiftOut(dataPin, clkPin, MSBFIRST, val >> 8);
     shiftOut(dataPin, clkPin, MSBFIRST, val);
