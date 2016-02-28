@@ -1,0 +1,11 @@
+Tlc59711	KEYWORD1
+beginFast	KEYWORD2
+beginSlow	KEYWORD2
+setTmgrst	KEYWORD2
+setChannel	KEYWORD2
+setRGB	KEYWORD2
+setLED	KEYWORD2
+setBrightness	KEYWORD2
+reset	KEYWORD2
+write	KEYWORD2
+end	KEYWORD2
