@@ -6,12 +6,8 @@
 // open source (see LICENSE file)
 //
 // notes:
-// * rewrite of the Adafruit_TLC59711 library:
-//  - avoids deprecated SPI library calls (making it, e.g., Teensy compatible)
-//  - significantly improved SPI performance
-//  - added API access to global brightness and TMGRST bit
-//  - added convenience functions that set values for all chips and LEDs
-//  - fixed some minor issues
+// * the library's Wiki on GitHub has a comparison with the Adafruit_TLC59711
+//  library and various other info
 //
 
 #ifndef TLC59711_H
