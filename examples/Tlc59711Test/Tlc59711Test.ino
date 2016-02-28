@@ -6,8 +6,7 @@
 // open source (see LICENSE file)
 //
 // notes:
-// * for "flicker" tests, values written at ~30 Hz to make possible flickering
-//  visible
+// * see page "Running Tlc59711Test" of the library's Wiki on GitHub
 //
 
 #include <Tlc59711.h>
