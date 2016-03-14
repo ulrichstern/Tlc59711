@@ -6,7 +6,7 @@
 // open source (see LICENSE file)
 //
 // notes:
-// * for the Tlc59711 library, this test will be added to Tlc59711Test
+// * for the Tlc59711 library, this test is part of Tlc59711Test
 // * for this test
 //  - the red LEDs should be constant on
 //  - the green and blue LEDs should blink (1s on, 1s off)
