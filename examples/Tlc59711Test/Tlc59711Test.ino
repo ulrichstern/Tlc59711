@@ -30,8 +30,9 @@ void loop() {
   for (int m=0; m<NUM_MODES; m++) {
     bool writeTimeable = setXferMode(m);
     flickerRamp();
-    blink();
+    blink(5);
     flickerConst();
+    blink(1);
     latchPulse(writeTimeable);
     Serial.println();
   }
@@ -104,9 +105,9 @@ void latchPulse(bool writeTimeable) {
   testDone();
 }
 
-void blink() {
+void blink(int secs) {
   testMessage("blink");
-  for (int i=0; i<50; i++) {
+  for (int i=0, n=10*secs; i<n; i++) {
     int m = i%2;
     tlc.setRGB(32768*m, 6554*m, 655*m);
     tlc.write();
