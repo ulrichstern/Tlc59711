@@ -27,10 +27,11 @@ void loop() {
   timeWrite();
   Serial.println();
   for (int m=0; m<NUM_MODES; m++) {
-    setXferMode(m);
+    bool writeTimeable = setXferMode(m);
     flickerRamp();
     blink();
     flickerConst();
+    latchPulse(writeTimeable);
     Serial.println();
   }
   setXferMode(0);
@@ -77,6 +78,27 @@ void flickerConst() {
     tlc.setRGB(32768, 6554, 655);
     tlc.write();
     delay(33);
+  }
+  testDone();
+}
+
+// for more details on this test, see LatchPulseTest sketch
+void latchPulse(bool writeTimeable) {
+  testMessage("latch pulse (R constant, B&G blink)");
+  if (!writeTimeable) {
+    Serial.println("  skipped -- write() not timeable");
+    return;
+  }
+  unsigned long us = micros();
+  tlc.write();
+  long n = 1000000L / (micros() - us);
+  uint16_t tv = 0x96c0;
+    // MSBs: 0b100101 (0x25), then 0b10110 (OUTTMG, ...)
+  for (int j=0; j<6; j++) {
+    int m = (j+1)%2;
+    tlc.setRGB(tv, tv*m, tv*m);
+    for (long i=0; i<n; i++)
+      tlc.write();
   }
   testDone();
 }
