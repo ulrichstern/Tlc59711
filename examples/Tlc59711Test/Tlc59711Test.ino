@@ -18,7 +18,8 @@ Tlc59711 tlc(NUM_TLC);
 
 void setup() {
   Serial.begin(9600);
-  
+  while (!Serial) { }
+
   Serial.println("testing Tlc59711 library");
   Serial.println("number chips: " + String(NUM_TLC) + "\n");
 }
