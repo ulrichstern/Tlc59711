@@ -16,6 +16,11 @@ Tlc59711::Tlc59711(uint16_t numTlc, uint8_t clkPin, uint8_t dataPin):
   setTmgrst();
 }
 
+Tlc59711::~Tlc59711() {
+  free(buffer);
+  free(buffer2);
+}
+
 void Tlc59711::begin(bool useSpi, unsigned int postXferDelayMicros) {
   end();
   useSpi_ = useSpi;

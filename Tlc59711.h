@@ -23,6 +23,8 @@ public:
   // - all brightness values 127 (maximum)
   Tlc59711(uint16_t numTlc, uint8_t clkPin = 13, uint8_t dataPin = 11);
 
+  ~Tlc59711();
+
   // select data transfer mode
   // * beginFast():
   //  - use hardware support (SPI library)
