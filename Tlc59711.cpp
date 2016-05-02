@@ -9,6 +9,8 @@
 #include "Tlc59711.h"
 #include <SPI.h>
 
+#define OPTIMIZE_SET 0   // whether to optimize setChannel() and setRGB()
+
 Tlc59711::Tlc59711(uint16_t numTlc, uint8_t clkPin, uint8_t dataPin):
     numTlc(numTlc), bufferSz(14*numTlc), clkPin(clkPin), dataPin(dataPin),
     buffer((uint16_t*) calloc(bufferSz, 2)), buffer2(0),
@@ -65,8 +67,12 @@ void Tlc59711::setBrightness(uint8_t bcr, uint8_t bcg, uint8_t bcb) {
     setBrightness(i, bcr, bcg, bcb);
 }
 
+#if OPTIMIZE_SET
+#pragma GCC optimize("O3")
+#endif
 void Tlc59711::setChannel(uint16_t idx, uint16_t val) {
   idx = 14*(idx/12) + idx%12;
+    // lookup table would likely give significant speedup
   if (idx < bufferSz)
     buffer[idx] = val;
 }
@@ -81,6 +87,30 @@ void Tlc59711::setRGB(uint16_t r, uint16_t g, uint16_t b) {
   for (uint16_t i=0, n=4*numTlc; i<n; i++)
     setRGB(i, r, g, b);
 }
+#if OPTIMIZE_SET
+#pragma GCC reset_options
+#endif
+
+#ifdef __AVR__
+
+#pragma GCC optimize("O3")
+#define WAIT_SPIF while (!(SPSR & _BV(SPIF))) { }
+void Tlc59711::xferSpi() {
+  cli();
+  uint8_t* p = (uint8_t*)buffer + bufferSz*2;
+  uint8_t out = *--p;
+  while (true) {
+    SPDR = out;
+    if (p == (uint8_t*)buffer)
+      break;
+    out = *--p;
+    WAIT_SPIF
+  }
+  WAIT_SPIF
+}
+#pragma GCC reset_options
+
+#else
 
 static void reverseMemcpy(void *dst, void *src, size_t count) {
   uint8_t* s = (uint8_t*)src;
@@ -93,6 +123,8 @@ void Tlc59711::xferSpi() {
   cli();
   SPI.transfer(buffer2, bufferSz*2);
 }
+
+#endif
 
 void Tlc59711::xferSpi16() {
   cli();
