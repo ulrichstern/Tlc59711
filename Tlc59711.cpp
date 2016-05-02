@@ -113,6 +113,7 @@ void Tlc59711::xferShiftOut() {
 void Tlc59711::write() {
   if (!beginCalled)
     return;
+  uint8_t oldSREG = SREG;
   if (useSpi_) {
     if (bufferXfer_)
       xferSpi();
@@ -121,7 +122,7 @@ void Tlc59711::write() {
   }
   else
     xferShiftOut();
-  sei();
+  SREG = oldSREG;
   // delay to make sure the TLC59711s read (latch) their shift registers;
   // the delay required is 8 times the duration between the last two SCKI
   // rising edges (plus 1.34 us); see datasheet pg. 22 for details
