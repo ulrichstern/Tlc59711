@@ -1,0 +1,12 @@
+{
+    "name": "Tlc59711",
+    "version": "1.0.2",
+    "keywords": "tlc59711",
+    "description": "Arduino library for controlling TI's TLC59711",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ulrichstern/Tlc59711.git"
+    },
+    "frameworks": "arduino",
+    "platforms": "*"
+}
