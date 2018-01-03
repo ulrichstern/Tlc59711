@@ -59,10 +59,10 @@ public:
     setRGB(idx, r, g, b);
   }
   uint16_t getChannel(uint16_t idx);
+  // setLED() is convenience function to allow faster testing/porting of
+  // code using Adafruit_TLC59711; the index order for multiple chips is
+  // different here, however, and chip 1 has the smallest indices
 
-    // setLED() is convenience function to allow faster testing/porting of
-    // code using Adafruit_TLC59711; the index order for multiple chips is
-    // different here, however, and chip 1 has the smallest indices
   void setBrightness(uint16_t tlcIdx, uint8_t bcr, uint8_t bcg, uint8_t bcb);
   void setBrightness(uint8_t bcr = 127, uint8_t bcg = 127, uint8_t bcb = 127);
   void reset() {
