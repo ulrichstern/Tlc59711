@@ -77,6 +77,15 @@ void Tlc59711::setChannel(uint16_t idx, uint16_t val) {
     buffer[idx] = val;
 }
 
+uint16_t Tlc59711::getChannel(uint16_t idx) {
+  idx = 14*(idx/12) + idx%12;
+  // lookup table would likely give significant speedup
+  uint16_t value = 0;
+  if (idx < bufferSz)
+    value = buffer[idx];
+  return value;
+}
+
 void Tlc59711::setRGB(uint16_t idx, uint16_t r, uint16_t g, uint16_t b) {
   idx = 3*idx;
   setChannel(idx, r);
@@ -167,4 +176,3 @@ void Tlc59711::end() {
     SPI.end();
   }
 }
-

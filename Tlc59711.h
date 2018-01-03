@@ -58,6 +58,8 @@ public:
   void setLED(uint16_t idx, uint16_t r, uint16_t g, uint16_t b) {
     setRGB(idx, r, g, b);
   }
+  uint16_t getChannel(uint16_t idx);
+
     // setLED() is convenience function to allow faster testing/porting of
     // code using Adafruit_TLC59711; the index order for multiple chips is
     // different here, however, and chip 1 has the smallest indices
@@ -91,4 +93,3 @@ private:
 };
 
 #endif
-
