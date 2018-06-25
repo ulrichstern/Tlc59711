@@ -80,7 +80,7 @@ void Tlc59711::setChannel(uint16_t idx, uint16_t val) {
 }
 
 uint16_t Tlc59711::getChannel(uint16_t idx) {
-  // idx = 14*(idx/12) + idx%12;
+  idx = 14*(idx/12) + idx%12;
   // lookup table would likely give significant speedup
   idx = idx_lookup_table[idx];
   uint16_t value = 0;
