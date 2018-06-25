@@ -13,7 +13,7 @@
 
 Tlc59711::Tlc59711(uint16_t numTlc, uint8_t clkPin, uint8_t dataPin):
     numTlc(numTlc), bufferSz(14*numTlc), clkPin(clkPin), dataPin(dataPin),
-    buffer((uint16_t*) calloc(bufferSz, 2)), buffer2(0),
+    buffer(<uint16_t*> calloc(bufferSz, 2)), buffer2(0),
     beginCalled(false) {
   setTmgrst();
 }
@@ -37,7 +37,7 @@ void Tlc59711::beginFast(bool bufferXfer, uint32_t spiClock,
   SPI.begin();
   SPI.beginTransaction(SPISettings(spiClock, MSBFIRST, SPI_MODE0));
   if (bufferXfer && !buffer2)
-    buffer2 = (uint16_t*) malloc(2*bufferSz);
+    buffer2 = <uint16_t*> malloc(2*bufferSz);
 }
 void Tlc59711::beginSlow(unsigned int postXferDelayMicros, bool interrupts) {
   begin(false, postXferDelayMicros);
@@ -63,7 +63,7 @@ void Tlc59711::setBrightness(uint16_t tlcIdx,
   }
 }
 void Tlc59711::setBrightness(uint8_t bcr, uint8_t bcg, uint8_t bcb) {
-  for (uint16_t i=0; i<numTlc; i++)
+  for (uint16_t i=0; i < numTlc; i++)
     setBrightness(i, bcr, bcg, bcb);
 }
 
@@ -93,7 +93,7 @@ void Tlc59711::setRGB(uint16_t idx, uint16_t r, uint16_t g, uint16_t b) {
   setChannel(++idx, b);
 }
 void Tlc59711::setRGB(uint16_t r, uint16_t g, uint16_t b) {
-  for (uint16_t i=0, n=4*numTlc; i<n; i++)
+  for (uint16_t i=0, n=4*numTlc; i < n; i++)
     setRGB(i, r, g, b);
 }
 #if OPTIMIZE_SET
@@ -106,11 +106,11 @@ void Tlc59711::setRGB(uint16_t r, uint16_t g, uint16_t b) {
 #define WAIT_SPIF while (!(SPSR & _BV(SPIF))) { }
 void Tlc59711::xferSpi() {
   cli();
-  uint8_t* p = (uint8_t*)buffer + bufferSz*2;
+  uint8_t* p = <uint8_t*>buffer + bufferSz*2;
   uint8_t out = *--p;
   while (true) {
     SPDR = out;
-    if (p == (uint8_t*)buffer)
+    if (p == <uint8_t*>buffer)
       break;
     out = *--p;
     WAIT_SPIF
@@ -122,9 +122,9 @@ void Tlc59711::xferSpi() {
 #else
 
 static void reverseMemcpy(void *dst, void *src, size_t count) {
-  uint8_t* s = (uint8_t*)src;
+  uint8_t* s = <uint8_t*>src;
   while (count-- > 0)
-    *((uint8_t*)dst+count) = *s++;
+    *(<uint8_t*>dst+count) = *s++;
 }
 
 void Tlc59711::xferSpi() {
