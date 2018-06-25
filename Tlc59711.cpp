@@ -14,6 +14,7 @@
 Tlc59711::Tlc59711(uint16_t numTlc, uint8_t clkPin, uint8_t dataPin):
     numTlc(numTlc), bufferSz(14*numTlc), clkPin(clkPin), dataPin(dataPin),
     buffer(<uint16_t*> calloc(bufferSz, 2)), buffer2(0),
+    idx_lookup(create_idx_lookup(numTlc))
     beginCalled(false) {
   setTmgrst();
 }
@@ -45,6 +46,15 @@ void Tlc59711::beginSlow(unsigned int postXferDelayMicros, bool interrupts) {
   pinMode(clkPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
 }
+
+void Tlc59711::setTmgrst(const uint16_t numTlc) {
+  uint16_t result[numTlc*12];
+  for (size_t idx = 0; idx < (numTlc*12); idx++) {
+      result[idx] = 14*(idx/12) + idx%12;
+  }
+  return result;
+}
+
 
 void Tlc59711::setTmgrst(bool val) {
   // OUTTMG = 1, EXTGCK = 0, TMGRST = 0, DSPRPT = 1, BLANK = 0 -> 0x12
