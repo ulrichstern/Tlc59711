@@ -74,13 +74,9 @@ void Tlc59711::setBrightness(uint8_t bcr, uint8_t bcg, uint8_t bcb) {
 void Tlc59711::setChannel(uint16_t idx, uint16_t val) {
   // idx = 14*(idx/12) + idx%12;
   // lookup table would likely give significant speedup
-  Serial.print(idx);
-  Serial.print(" - ");
   idx = idx_lookup_table[idx];
-  Serial.print(idx);
   if (idx < bufferSz)
     buffer[idx] = val;
-  Serial.println();
 }
 
 uint16_t Tlc59711::getChannel(uint16_t idx) {
