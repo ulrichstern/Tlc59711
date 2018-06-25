@@ -77,7 +77,7 @@ class Tlc59711 {
   void end();
 
  private:
-  const uint16_t idx_lookup;
+  // const uint16_t idx_lookup;
   const uint16_t numTlc, bufferSz;
   const uint8_t clkPin, dataPin;
   uint16_t *buffer, *buffer2;
@@ -91,5 +91,37 @@ class Tlc59711 {
   void xferSpi16();
   void xferShiftOut();
 };
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// generate lookup table at compile time
+// based on stackoverflow questions
+// Is it possible to create and initialize an array of values
+// using template metaprogramming?
+// https://stackoverflow.com/a/2228298/574981
+// https://stackoverflow.com/a/37447199/574981
+
+template <uint16_t idx>
+struct idx_lookup_generator {
+    idx_lookup_generator<idx - 1> rest;
+    static const uint16_t x = (14 * (idx / 12) + idx % 12);
+    // static const uint16_t x = idx * idx;
+    constexpr uint16_t operator[](uint16_t const &i) const {
+        return (i == idx ?  x : rest[i]);
+    }
+    constexpr uint16_t size() const {
+        return idx;
+    }
+};
+
+template <>
+struct idx_lookup_generator<0> {
+    static const uint16_t x = 0;
+    constexpr uint16_t operator[](uint16_t const &i) const { return x; }
+    constexpr uint16_t size() const { return 1; }
+};
+
+// maximum elements is 56173 (as this translates to 65535)
+const idx_lookup_generator<96> idx_lookup_table;
+
 
 #endif  // TLC59711_H_

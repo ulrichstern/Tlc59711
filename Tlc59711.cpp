@@ -13,8 +13,8 @@
 
 Tlc59711::Tlc59711(uint16_t numTlc, uint8_t clkPin, uint8_t dataPin):
     numTlc(numTlc), bufferSz(14*numTlc), clkPin(clkPin), dataPin(dataPin),
+    // idx_lookup(idx_lookup_generator<20>),
     buffer((uint16_t*) calloc(bufferSz, 2)), buffer2(0),
-    // idx_lookup(create_idx_lookup(numTlc)),
     beginCalled(false) {
   setTmgrst();
 }
@@ -47,15 +47,6 @@ void Tlc59711::beginSlow(unsigned int postXferDelayMicros, bool interrupts) {
   pinMode(dataPin, OUTPUT);
 }
 
-void Tlc59711::setTmgrst(const uint16_t numTlc) {
-  uint16_t result[numTlc*12];
-  for (size_t idx = 0; idx < (numTlc*12); idx++) {
-      result[idx] = 14*(idx/12) + idx%12;
-  }
-  return result;
-}
-
-
 void Tlc59711::setTmgrst(bool val) {
   // OUTTMG = 1, EXTGCK = 0, TMGRST = 0, DSPRPT = 1, BLANK = 0 -> 0x12
   fc = 0x12 + (val ? 0x4 : 0);
@@ -81,15 +72,21 @@ void Tlc59711::setBrightness(uint8_t bcr, uint8_t bcg, uint8_t bcb) {
 #pragma GCC optimize("O3")
 #endif
 void Tlc59711::setChannel(uint16_t idx, uint16_t val) {
-  idx = 14*(idx/12) + idx%12;
-    // lookup table would likely give significant speedup
+  // idx = 14*(idx/12) + idx%12;
+  // lookup table would likely give significant speedup
+  Serial.print(idx);
+  Serial.print(" - ");
+  idx = idx_lookup_table[idx];
+  Serial.print(idx);
   if (idx < bufferSz)
     buffer[idx] = val;
+  Serial.println();
 }
 
 uint16_t Tlc59711::getChannel(uint16_t idx) {
-  idx = 14*(idx/12) + idx%12;
+  // idx = 14*(idx/12) + idx%12;
   // lookup table would likely give significant speedup
+  idx = idx_lookup_table[idx];
   uint16_t value = 0;
   if (idx < bufferSz)
     value = buffer[idx];
