@@ -9,7 +9,7 @@
 #include "Tlc59711.h"
 #include <SPI.h>
 
-#define OPTIMIZE_SET 0   // whether to optimize setChannel() and setRGB()
+#define OPTIMIZE_SET 1   // whether to optimize setChannel() and setRGB()
 
 Tlc59711::Tlc59711(uint16_t numTlc, uint8_t clkPin, uint8_t dataPin):
     numTlc(numTlc), bufferSz(14*numTlc), clkPin(clkPin), dataPin(dataPin),
@@ -73,10 +73,10 @@ void Tlc59711::setBrightness(uint8_t bcr, uint8_t bcg, uint8_t bcb) {
 #endif
 void Tlc59711::setChannel(uint16_t idx, uint16_t val) {
   // idx = 14*(idx/12) + idx%12;
-  // lookup table would likely give significant speedup
+  // lookup table gives significant speedup
   if (idx < idx_lookup_table_count) {
-      // idx = idx_lookup_table[idx];
-      idx = pgm_read_word_near(idx_lookup_table + idx);
+      idx = idx_lookup_table[idx];
+      // idx = pgm_read_word_near(idx_lookup_table + idx);
       if (idx < bufferSz) {
         buffer[idx] = val;
       }
@@ -85,14 +85,11 @@ void Tlc59711::setChannel(uint16_t idx, uint16_t val) {
 
 uint16_t Tlc59711::getChannel(uint16_t idx) {
   // idx = 14*(idx/12) + idx%12;
-  // lookup table would likely give significant speedup
+  // lookup table gives significant speedup
   uint16_t value = 0;
-  if (idx < idx_lookup_table_count) {
-      // idx = idx_lookup_table[idx];
-      idx = pgm_read_word_near(idx_lookup_table + idx);
-      if (idx < bufferSz) {
-        value = buffer[idx];
-      }
+  idx = idx_lookup_table[idx];
+  if (idx < bufferSz) {
+    value = buffer[idx];
   }
   return value;
 }
