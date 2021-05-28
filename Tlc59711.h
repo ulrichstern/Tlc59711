@@ -1,6 +1,7 @@
 //
 // Arduino library for controlling TI's TLC59711
 //
+// copyright 2016 by Ulrich Stern
 // 21 Feb 2016 by Ulrich Stern
 //
 // open source (see LICENSE file)
