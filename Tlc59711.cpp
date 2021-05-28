@@ -1,19 +1,24 @@
 //
 // Arduino library for controlling TI's TLC59711
 //
+// copyright 2016 by Ulrich Stern
 // 21 Feb 2016 by Ulrich Stern
 //
 // open source (see LICENSE file)
 //
 
-#include "Tlc59711.h"
+#include "./Tlc59711.h"
 #include <SPI.h>
 
 #define OPTIMIZE_SET 0   // whether to optimize setChannel() and setRGB()
 
 Tlc59711::Tlc59711(uint16_t numTlc, uint8_t clkPin, uint8_t dataPin):
-    numTlc(numTlc), bufferSz(14*numTlc), clkPin(clkPin), dataPin(dataPin),
-    buffer((uint16_t*) calloc(bufferSz, 2)), buffer2(0),
+    numTlc(numTlc),
+    bufferSz(14*numTlc),
+    clkPin(clkPin),
+    dataPin(dataPin),
+    buffer(reinterprate_cast<uint16_t*>(calloc(bufferSz, 2))),
+    buffer2(0),
     beginCalled(false) {
   setTmgrst();
 }
@@ -36,9 +41,12 @@ void Tlc59711::beginFast(bool bufferXfer, uint32_t spiClock,
   bufferXfer_ = bufferXfer;
   SPI.begin();
   SPI.beginTransaction(SPISettings(spiClock, MSBFIRST, SPI_MODE0));
-  if (bufferXfer && !buffer2)
-    buffer2 = (uint16_t*) malloc(2*bufferSz);
+  if (bufferXfer && !buffer2) {
+    // buffer2 = (uint16_t*) malloc(2*bufferSz);
+    buffer2 = reinterprate_cast<uint16_t*>(malloc(2*bufferSz));
+  }
 }
+
 void Tlc59711::beginSlow(unsigned int postXferDelayMicros, bool interrupts) {
   begin(false, postXferDelayMicros);
   noInterrupts = !interrupts;
@@ -55,8 +63,11 @@ void Tlc59711::setTmgrst(bool val) {
 void Tlc59711::setBrightness(uint16_t tlcIdx,
     uint8_t bcr, uint8_t bcg, uint8_t bcb) {
   if (tlcIdx < numTlc) {
-    uint32_t ms32 = (uint32_t)0x25 << 26 | (uint32_t)fc << 21 |
-      (uint32_t)bcb << 14 | (uint32_t)bcg << 7 | bcr;
+    uint32_t ms32 = (uint32_t)0x25 << 26 |
+        (uint32_t)fc << 21 |
+        (uint32_t)bcb << 14 |
+        (uint32_t)bcg << 7 |
+        bcr;
     uint16_t idx = 14*tlcIdx+12;
     buffer[idx] = ms32;
     buffer[++idx] = ms32 >> 16;
@@ -102,68 +113,73 @@ void Tlc59711::setRGB(uint16_t r, uint16_t g, uint16_t b) {
 
 #ifdef __AVR__
 
-#pragma GCC optimize("O3")
-#define WAIT_SPIF while (!(SPSR & _BV(SPIF))) { }
-void Tlc59711::xferSpi() {
-  cli();
-  uint8_t* p = (uint8_t*)buffer + bufferSz*2;
-  uint8_t out = *--p;
-  while (true) {
-    SPDR = out;
-    if (p == (uint8_t*)buffer)
-      break;
-    out = *--p;
-    WAIT_SPIF
-  }
-  WAIT_SPIF
-}
-#pragma GCC reset_options
+    #pragma GCC optimize("O3")
+    #define WAIT_SPIF while (!(SPSR & _BV(SPIF))) { }
+    void Tlc59711::xferSpi() {
+      noInterrupts();
+      uint8_t* p = reinterprate_cast<uint8_t*>(buffer + bufferSz*2;
+      uint8_t out = *--p;
+      while (true) {
+        SPDR = out;
+        if (p == reinterprate_cast<uint8_t*>(buffer)
+          break;
+        out = *--p;
+        WAIT_SPIF
+      }
+      WAIT_SPIF
+    }
+    #pragma GCC reset_options
 
 #else
 
-static void reverseMemcpy(void *dst, void *src, size_t count) {
-  uint8_t* s = (uint8_t*)src;
-  while (count-- > 0)
-    *((uint8_t*)dst+count) = *s++;
-}
+    static void reverseMemcpy(void *dst, void *src, size_t count) {
+      uint8_t* s = reinterprate_cast<uint8_t*>(src;
+      while (count-- > 0)
+        *(reinterprate_cast<uint8_t*>(dst+count) = *s++;
+    }
 
-void Tlc59711::xferSpi() {
-  reverseMemcpy(buffer2, buffer, bufferSz*2);
-  cli();
-  SPI.transfer(buffer2, bufferSz*2);
-}
+    void Tlc59711::xferSpi() {
+      reverseMemcpy(buffer2, buffer, bufferSz*2);
+      // cli();
+      // https://forum.arduino.cc/t/cli-not-declared-in-scope/380812
+      // https://www.arduino.cc/reference/en/language/functions/interrupts/interrupts/
+      noInterrupts();
+      SPI.transfer(buffer2, bufferSz*2);
+      interrupts();
+    }
 
 #endif
 
 void Tlc59711::xferSpi16() {
-  cli();
+  noInterrupts();
   for (int i=bufferSz-1; i >= 0; i--)
     SPI.transfer16(buffer[i]);
+  interrupts();
 }
 
 void Tlc59711::xferShiftOut() {
-  if (noInterrupts)
-    cli();
+  if (noInterrupts) {
+    noInterrupts();
+  }
   for (int i=bufferSz-1; i >= 0; i--) {
     uint16_t val = buffer[i];
     shiftOut(dataPin, clkPin, MSBFIRST, val >> 8);
     shiftOut(dataPin, clkPin, MSBFIRST, val);
   }
+  interrupts();
 }
 
 void Tlc59711::write() {
   if (!beginCalled)
     return;
-  uint8_t oldSREG = SREG;
   if (useSpi_) {
     if (bufferXfer_)
       xferSpi();
     else
       xferSpi16();
-  }
-  else
+  } else {
     xferShiftOut();
-  SREG = oldSREG;
+  }
   // delay to make sure the TLC59711s read (latch) their shift registers;
   // the delay required is 8 times the duration between the last two SCKI
   // rising edges (plus 1.34 us); see datasheet pg. 22 for details

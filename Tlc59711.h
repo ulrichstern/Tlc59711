@@ -1,6 +1,7 @@
 //
 // Arduino library for controlling TI's TLC59711
 //
+// copyright 2016 by Ulrich Stern
 // 21 Feb 2016 by Ulrich Stern
 //
 // open source (see LICENSE file)
@@ -10,18 +11,17 @@
 //  library and various other info
 //
 
-#ifndef TLC59711_H
-#define TLC59711_H
+#ifndef TLC59711_H_
+#define TLC59711_H_
 
 #include <Arduino.h>
 
 class Tlc59711 {
-
-public:
+ public:
   // object default state: (matches reset())
   // - all grayscale (PWM) values 0
   // - all brightness values 127 (maximum)
-  Tlc59711(uint16_t numTlc, uint8_t clkPin = 13, uint8_t dataPin = 11);
+  explicit Tlc59711(uint16_t numTlc, uint8_t clkPin = 13, uint8_t dataPin = 11);
 
   ~Tlc59711();
 
@@ -77,7 +77,7 @@ public:
   // stop using this library
   void end();
 
-private:
+ private:
   const uint16_t numTlc, bufferSz;
   const uint8_t clkPin, dataPin;
   uint16_t *buffer, *buffer2;
@@ -92,4 +92,4 @@ private:
   void xferShiftOut();
 };
 
-#endif
+#endif  // TLC59711_H_
